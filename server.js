@@ -4,6 +4,7 @@ const cors = require("cors");
 const dbConnection = require("./config/db");
 const bodyParser = require("body-parser");
 const cartsRoutes = require("./routes/CartsRoute");
+const checkoutRoutes = require("./routes/CheckoutRoute");
 
 const app = express();
 const port = process.env.Port;
@@ -15,6 +16,8 @@ app.use(express.json());
 app.use(express.urlencoded());
 
 app.use("/carts", cartsRoutes);
+app.use("/checkout", checkoutRoutes);
+
 
 app.listen(port, () => {
   dbConnection()

@@ -5,7 +5,7 @@ const ordersSchema = new mongoose.Schema({
   user_id: { type: Number, required: true },
   checkout_id: { type: Number, required: true },
   order_date: { type: Date, required: true },
-  total_amount: { type: Decimal, required: true },
+  total_amount: { type: Number, required: true },
   status: { type: String, required: true },
 });
 

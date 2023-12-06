@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cartsRoutes = require("./routes/CartsRoute");
 const checkoutRoutes = require("./routes/CheckoutRoute");
 const ordersRoutes = require("./routes/OrdersRoute");
+const productRoutes = requiere ('./routes/ProductsRoute')
 
 const app = express();
 const port = process.env.Port;
@@ -19,6 +20,7 @@ app.use(express.urlencoded());
 app.use("/carts", cartsRoutes);
 app.use("/checkout", checkoutRoutes);
 app.use("/orders", ordersRoutes);
+app.use("/products", productRoutes);
 
 app.listen(port, () => {
   dbConnection()

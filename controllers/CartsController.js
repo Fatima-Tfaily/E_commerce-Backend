@@ -13,7 +13,6 @@ const getAllCarts = async (req, res) => {
 const addCarts = async (req, res) => {
   try {
     const cart = new Carts({
-      cart_id: req.body.cart_id,
       user_id: req.body.user_id,
       products_id: req.body.products_id,
       quantity_to_purchase: req.body.quantity_to_purchase,

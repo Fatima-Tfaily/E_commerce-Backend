@@ -9,7 +9,6 @@ const ordersRoutes = require("./routes/OrdersRoute");
 const categoryRoutes = require("./routes/CategoryRoute");
 const userRoutes = require("./routes/UserRoute");
 const productRoutes = require("./routes/ProductsRoute");
-const productRoutes = requiere("./routes/ProductsRoute");
 
 const app = express();
 const port = process.env.Port;

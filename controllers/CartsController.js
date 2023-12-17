@@ -10,12 +10,33 @@ const getAllCarts = async (req, res) => {
   }
 };
 
+const getCartsById = async (req, res) => {
+  try {
+    const carts = await Carts.find({ user_id: req.params.id });
+
+    if (carts.length === 0) {
+      return res.status(404).json({ msg: "No products added by this user" });
+    }
+
+    res.json(carts);
+  } catch (err) {
+    console.error(err.message);
+
+    if (err.kind === "ObjectId") {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.status(500).send("Server Error");
+  }
+};
 const addCarts = async (req, res) => {
   try {
     const cart = new Carts({
       user_id: req.body.user_id,
       products_id: req.body.products_id,
       quantity_to_purchase: req.body.quantity_to_purchase,
+      price: req.body.price,
+      product_name: req.body.product_name,
     });
     const savedCart = await cart.save();
 
@@ -52,6 +73,7 @@ const deleteCart = async (req, res) => {
 
 module.exports = {
   getAllCarts,
+  getCartsById,
   deleteCart,
   addCarts,
 };

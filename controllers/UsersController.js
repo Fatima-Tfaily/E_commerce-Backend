@@ -65,13 +65,15 @@ const switchToAdmin = async (req, res) => {
     // Update the user's role to 'admin'
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $set: { role: 'admin' } },
+      { $set: { role: "admin" } },
       { new: true }
     );
 
     // Check if the user was found and updated
     if (!updatedUser) {
-      return res.status(404).json({ msg: `User with id = ${userId} not found.` });
+      return res
+        .status(404)
+        .json({ msg: `User with id = ${userId} not found.` });
     }
 
     return res.status(200).json({
@@ -88,7 +90,6 @@ const switchToAdmin = async (req, res) => {
     });
   }
 };
-
 
 const updateUser = async (req, res) => {
   const userId = req.params.id;

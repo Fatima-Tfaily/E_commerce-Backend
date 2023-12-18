@@ -1,8 +1,6 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { generateToken } = require("../extra/generateToken");
-const {auth} = require("../authentication/auth");
-const {authMiddleware} = require("../authentication/authMiddleware");
+const { generateToken } = require('../extra/generateToken');
+
 
 const User = require("../models/users");
 
@@ -139,10 +137,10 @@ const addSeller = async (req, res) => {
 // };
 
 const addUser = async (req, res) => {
-  const role="User";
-  const { name, lastName, email, password, phoneNumber, address } = req.body;
+
 
   try {
+    const { name, lastName, email, password, phoneNumber, address } = req.body;
     // Hash the password using bcrypt
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -154,18 +152,14 @@ const addUser = async (req, res) => {
       hashedPassword,
       phoneNumber,
       address,
-      role,
     });
     // Save the user document to the MongoDB database
     await newUser.save();
-    // Generate a token for the new user
-    const token = generateToken(data[0]._id);
     // Return success response with user data and token
     return res.status(200).json({
       success: true,
-      message: `User added successfully.`,
-      token,
-      data: data[0],
+      message: "User added successfully.",
+      data: newUser,
     });
   } catch (error) {
     return res.status(400).json({

@@ -13,12 +13,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    validate: {
-      validator: function (v) {
-        return /^[^s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-      },
-      message: "Invalid email format",
-    },
   },
   hashedPassword: {
     type: String,
@@ -35,6 +29,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: false,
+    default: "User",
   },
 });
 const Users = mongoose.model("Users", userSchema);

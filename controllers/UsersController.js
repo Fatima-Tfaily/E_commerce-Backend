@@ -1,7 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../extra/generateToken");
-const User = require("../models/Users");
+const {auth} = require("../authentication/auth");
+const {authMiddleware} = require("../authentication/authMiddleware");
+
+const User = require("../models/users");
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -32,12 +35,67 @@ const getUserByID = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
-//Add User with password hashing
-const addUser = async (req, res) => {
+// Get an Admin User by ID
+const getAdminByID = async (req, res) => {
   try {
-    const { name, lastName, email, password, phoneNumber, address, role } =
-      req.body;
+    const adminUser = await User.findOne({ _id: req.params.id, role: "admin" });
+
+    if (!adminUser) {
+      return res.status(404).json({ msg: "Admin user not found" });
+    }
+
+    res.json(adminUser);
+  } catch (err) {
+    console.error(err.message);
+
+    if (err.kind === "ObjectId") {
+      return res.status(404).json({ msg: "Admin user not found" });
+    }
+
+    res.status(500).send("Server Error");
+  }
+};
+
+// Assuming your user model is defined as User
+const getSellers = async (req, res) => {
+  try {
+    const users = await User.find({ role: "Seller" });
+    if (!users || users.length === 0) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.json(users);
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === "ObjectId") {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.status(500).send("Server Error");
+  }
+};
+// Assuming your user model is defined as User
+const getAdmins = async (req, res) => {
+  try {
+    const users = await User.find({ role: "admin" });
+    if (!users || users.length === 0) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    res.json(users);
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === "ObjectId") {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.status(500).send("Server Error");
+  }
+};
+
+//Add Seller with password hashing
+const addSeller = async (req, res) => {
+  try {
+    const role = "Seller";
+    const { name, lastName, email, password, phoneNumber, address } = req.body;
     // Hash the password using bcrypt
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -56,6 +114,69 @@ const addUser = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+//Add User with password hashing
+// const addUser = async (req, res) => {
+//   try {
+//     const role = "User";
+//     const { name, lastName, email, password, phoneNumber, address } = req.body;
+//     // Hash the password using bcrypt
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const newUser = new User({
+//       name,
+//       lastName,
+//       email,
+//       hashedPassword, // Save the hashed password in the database
+//       phoneNumber,
+//       address,
+//       role,
+//     });
+//     await newUser.save();
+//     res.json(newUser);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send("Server Error");
+//   }
+// };
+
+const addUser = async (req, res) => {
+  const role="User";
+  const { name, lastName, email, password, phoneNumber, address } = req.body;
+
+  try {
+    // Hash the password using bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user document
+    const newUser = new User({
+      name,
+      lastName,
+      email,
+      hashedPassword,
+      phoneNumber,
+      address,
+      role,
+    });
+    // Save the user document to the MongoDB database
+    await newUser.save();
+    // Generate a token for the new user
+    const token = generateToken(data[0]._id);
+    // Return success response with user data and token
+    return res.status(200).json({
+      success: true,
+      message: `User added successfully.`,
+      token,
+      data: data[0],
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: `Error while trying to register a new user.`,
+      error: error.message,
+    });
+  }
+};
+
+
 
 //Switch to Admin function
 const switchToAdmin = async (req, res) => {
@@ -65,13 +186,15 @@ const switchToAdmin = async (req, res) => {
     // Update the user's role to 'admin'
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $set: { role: 'admin' } },
+      { $set: { role: "admin" } },
       { new: true }
     );
 
     // Check if the user was found and updated
     if (!updatedUser) {
-      return res.status(404).json({ msg: `User with id = ${userId} not found.` });
+      return res
+        .status(404)
+        .json({ msg: `User with id = ${userId} not found.` });
     }
 
     return res.status(200).json({
@@ -88,7 +211,6 @@ const switchToAdmin = async (req, res) => {
     });
   }
 };
-
 
 const updateUser = async (req, res) => {
   const userId = req.params.id;
@@ -162,10 +284,7 @@ const loginUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: `User with email ${email} logged in succesfully.`,
-      data: {
-        ...user.toObject(),
-        token,
-      },
+      data: token,
     });
   } catch (error) {
     return res.status(400).json({
@@ -175,6 +294,53 @@ const loginUser = async (req, res) => {
     });
   }
 };
+
+// const loginUser = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     // Find the user by email in MongoDB
+//     const user = await User.findOne({ email });
+
+//     // If user is not found
+//     if (!user) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `User with email ${email} not found.`,
+//       });
+//     }
+
+//     // Check the password using bcrypt
+//     const checkPassword = await bcrypt.compare(password, user.password);
+
+//     // If password is incorrect
+//     if (!checkPassword) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Wrong password.",
+//       });
+//     }
+
+//     // If everything is correct, generate a token
+//     const token = generateAuthToken(user._id);
+
+//     // Return success response with user data and token
+//     return res.status(200).json({
+//       success: true,
+//       message: `User with email ${email} logged in successfully.`,
+//       data: {
+//         ...user.toObject(),
+//         token,
+//       },
+//     });
+//   } catch (error) {
+//     return res.status(400).json({
+//       success: false,
+//       message: `Unable to login.`,
+//       error: error.message,
+//     });
+//   }
+// };
+
 module.exports = {
   getAllUsers,
   getUserByID,
@@ -183,4 +349,8 @@ module.exports = {
   updateUser,
   loginUser,
   switchToAdmin,
+  getSellers,
+  addSeller,
+  getAdmins,
+  getAdminByID,
 };

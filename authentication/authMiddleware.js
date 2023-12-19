@@ -1,15 +1,19 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 function authenticateToken(req, res, next) {
-  const token = req.header('Authorization');
+  const token = req.header("Authorization");
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Unauthorized: Missing token' });
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized: Missing token" });
   }
 
-  jwt.verify(token, 'your_secret_key', (err, decoded) => {
+  jwt.verify(token, "process.env.JWT_SECRET", (err, decoded) => {
     if (err) {
-      return res.status(401).json({ success: false, message: 'Unauthorized: Invalid token' });
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized: Invalid token" });
     }
 
     req.user = decoded;
@@ -22,10 +26,15 @@ function authorizeRole(role) {
     const userRole = req.user.userRole;
 
     if (userRole !== role) {
-      return res.status(403).json({ success: false, message: 'Forbidden: Insufficient permissions' });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "Forbidden: Insufficient permissions",
+        });
     }
 
     next();
   };
 }
-module.exports = { authenticateToken,authorizeRole };
+module.exports = { authenticateToken, authorizeRole };

@@ -34,6 +34,7 @@ const addCarts = async (req, res) => {
     const cart = new Carts({
       user_id: req.body.user_id,
       products_id: req.body.products_id,
+      product_image: req.body.product_image,
       quantity_to_purchase: req.body.quantity_to_purchase,
       price: req.body.price,
       product_name: req.body.product_name,
@@ -56,7 +57,7 @@ const addCarts = async (req, res) => {
 
 const deleteCart = async (req, res) => {
   try {
-    const cart = await Carts.deleteOne({ cart_id: req.params.cart_id });
+    const cart = await Carts.deleteOne({ _id: req.params.id }); // Use req.params.id instead of req.params._id
     res.status(200).json({
       success: true,
       message: "Cart deleted successfully",
@@ -65,8 +66,34 @@ const deleteCart = async (req, res) => {
   } catch (err) {
     res.status(404).json({
       success: false,
-      message: "Error occured while deleted Cart",
-      error: error,
+      message: "Error occurred while deleting cart",
+      error: err,
+    });
+  }
+};
+
+const deleteCartsByUserId = async (req, res) => {
+  try {
+    const result = await Carts.deleteMany({ user_id: req.params.user_id });
+
+    if (result.deletedCount > 0) {
+      res.status(200).json({
+        success: true,
+        message: "All carts for the user deleted successfully",
+        deletedCount: result.deletedCount,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "No carts found for the user",
+        deletedCount: result.deletedCount,
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Error occurred while deleting carts",
+      error: err.message,
     });
   }
 };
@@ -75,5 +102,6 @@ module.exports = {
   getAllCarts,
   getCartsById,
   deleteCart,
+  deleteCartsByUserId,
   addCarts,
 };

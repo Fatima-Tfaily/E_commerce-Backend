@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const usersController = require("../controllers/usersController");
+const usersController = require("../controllers/UsersController");
 const { isAuthenticated } = require("../middlewares/auth");
 router.get("/", usersController.getAllUsers);
 router.get("/getByID/:id", usersController.getUserByID);

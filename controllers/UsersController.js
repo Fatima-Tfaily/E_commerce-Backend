@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../extra/generateToken");
 
-const User = require("../models/users");
+const User = require("../models/Users");
 
 // Get all users
 const getAllUsers = async (req, res) => {

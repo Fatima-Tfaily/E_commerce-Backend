@@ -9,6 +9,6 @@ const {
 
 router.get("/getAll", getAllCheckout);
 router.delete("/delete/:id", deleteCheckout);
-router.post("/add", addCheckout);
+router.post("/addCheckout", addCheckout);
 
 module.exports = router;

@@ -32,10 +32,11 @@ const deleteCheckout = async (req, res) => {
 const addCheckout = async (req, res) => {
   try {
     const checkout = new Checkout({
-      checkout_id: req.body.checkout_id,
       user_id: req.body.user_id,
       products_id: req.body.products_id,
       quantity_to_purchase: req.body.quantity_to_purchase,
+      price: req.body.price,
+      product_name: req.body.product_name,
     });
     const savedCheckout = await checkout.save();
 

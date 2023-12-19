@@ -71,6 +71,29 @@ const addProduct = async (req, res) => {
     });
   }
 };
+const getProductsByCategoryName = async (req, res) => {
+  try {
+    const categoryName = req.params.categoryName;
+    const products = await Product.find({ categoryName: categoryName });
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `Products not found for the given categoryName: ${categoryName}`,
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: `Products retrieved successfully by categoryName: ${categoryName}`,
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Unable to retrieve products by categoryName",
+      error: error.message,
+    });
+  }
+};
 
 const getProductByID = async (req, res) => {
   try {
@@ -85,6 +108,33 @@ const getProductByID = async (req, res) => {
       success: false,
       message: "Unable to retrieve product by ID",
       error: error,
+    });
+  }
+};
+const getProductByCategoryID = async (req, res) => {
+  try {
+    const category_id = req.params.category_id;
+
+    // Find products with the specified category_id
+    const products = await Product.find({ category_id: category_id });
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Products not found for the given category_id",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Products retrieved successfully by category_id",
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Unable to retrieve products by category_id",
+      error: error.message,
     });
   }
 };
@@ -133,11 +183,59 @@ const deleteProductByID = async (req, res) => {
     });
   }
 };
+const getProductsByCategoryID = async (req, res) => {
+  try {
+    const { category_id } = req.query;
+    const products = await Product.find({ category_id: category_id });
+    res.status(200).json({
+      success: true,
+      message: "Products retrieved successfully by category_id",
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Unable to retrieve products by category_id",
+      error: error.message,
+    });
+  }
+};
+const getProductsByCategoryid = async (req, res) => {
+  try {
+    const { category_id } = req.query;
+
+    // Find products with the specified type
+    const products = await Product.find({ category_id: category_id });
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `Products not found for the given category_id: ${category_id}`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Products retrieved successfully by category_id: ${category_id}`,
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Unable to retrieve products by category_id",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   getAllProducts,
   getProductByID,
+  getProductByCategoryID,
+  getProductsByCategoryID,
   updateProductByID,
   deleteProductByID,
   addProduct,
+  getProductsByCategoryid,
+  getProductsByCategoryName,
 };
